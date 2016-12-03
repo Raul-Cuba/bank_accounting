@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	
+	<!-- -------------------------------------------------------- -->
+	<!-- Блок подключения - Бутстрапа, jQuery и сторонних библиотек -->
+	<link rel="stylesheet" href="css/bootstrap.css"> 
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/bootstrap.js"></script>
+	
+    <!-- Third-party библиотека для красивого оформления сумм -->
+	<script type="text/javascript" src="js/accounting.js"></script>
+    <!-- -------------------------------------------------------- -->
+
+
+    <style>
+    	
+    	table {
+    		font-size: 30px;
+    	}
+
+    </style>
+
+
+
+	<title>Владелец Банка - административная страница</title>
+</head>
+<body>
+
+
+	
+<div class="col-sm-10 col-sm-offset-1" align="center">
+	<h2>ТИНЬКОФФ БАНК. Страница для владельца банка. Счета клиентов</h2>
+
+	<br/>
+	<br/>
+
+	<table class="table table-bordered table-hover">
+		<thead>
+			<tr><td>#</td>
+				<td>ФИО клиента</td>
+				<td>Количество денег,  USD</td>
+			</tr>	
+		</thead>
+
+		<tbody>
+			<tr><td>1</td>
+				<td>Иванов (Client A)</td>
+				<td><span id="client1" class="account_amount">0<span></td>
+			</tr>	
+
+			<tr><td>2</td>
+				<td>Сидоров (Client B)</td>
+				<td><span id="client2" class="account_amount">0<span></td>
+			</tr>
+		</tbody>
+	</table>
+	
+
+</div>
+
+
+<script>
+
+
+	$(document).ready(function(){
+		formatAmountClient1();
+    formatAmountClient2();
+
+		setInterval( function(){updateInfo();}, 1000  );
+	});	
+
+	function formatAmountNow(){
+		//снаимаем значение полей span обращаясь по классу accuount_number
+		 $(".account_amount").text (  function(index, value){ 
+		 		var amount = value;
+				console.log("Исходный ammount = " + amount);
+
+				var formatted_amount = accounting.formatMoney(amount, "€", 2, " ", "," );
+				console.log("Отформатированный  ammount = " + formatted_amount);
+			    return formatted_amount;
+		 });
+	}
+
+
+  function formatAmountClient1(){
+    //снаимаем значение полей span обращаясь по классу accuount_number
+     var amount = $("#client1").text ();  
+     console.log("Исходный ammount Client1 = " + amount);
+
+     var formatted_amount = accounting.formatMoney(amount, "€", 2, " ", "," );
+     console.log("Отформатированный  ammount Client1 = " + formatted_amount);
+  
+     $("#client1").text(formatted_amount);
+  }
+
+  function formatAmountClient2(){
+    //снаимаем значение полей span обращаясь по классу accuount_number
+     var amount = $("#client2").text ();  
+     console.log("Исходный ammount Client2 = " + amount);
+
+     var formatted_amount = accounting.formatMoney(amount, "€", 2, " ", "," );
+     console.log("Отформатированный  ammount Client2 = " + formatted_amount);
+  
+     $("#client2").text(formatted_amount);
+  }
+
+
+
+   //======  функция обновления информации ======================================
+   	function updateInfo() {
+
+   		getInfoAbountClientsAccounts(1);   // по первому клиенту
+   		getInfoAbountClientsAccounts(2);   // и по второму обновляем инфу
+   	}
+   //============================================================================
+
+
+
+  //==== XMLHttpRequest instance creation ========================================   
+    function ajaxRequest() {
+        try 
+        {
+            var request = new XMLHttpRequest()
+        } 
+        catch(e1) 
+        {
+            try 
+            {
+                request = new ActiveXObject("Msxml2.XMLHTTP") 
+            } 
+            catch(e2) 
+            {
+                try
+                {
+                    request = new ActiveXObject("Microsoft.XMLHTTP") 
+                }
+                catch(e3)
+                {
+                    request = false
+                }
+            }
+        }
+        return request
+    }//============================================================================
+
+
+    //=============AJAX request for JSON function ==============================
+    function getInfoAbountClientsAccounts(client_id) {
+              params = "client_id="+client_id;
+              request = new ajaxRequest()
+              request.open("POST", "http://raul.ru/project_1/server/bank.php", true)
+              request.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+              request.setRequestHeader("Content-length", params.length)
+              request.setRequestHeader("Connection", "close")
+
+              request.onreadystatechange = function() {
+                  if( this.readyState == 4 ) {
+                      if ( this.status == 200 ) {
+                          if( this.responseText != null ) {
+                               //----- core part - разбор РЕЗУЛЬТАТА---------- 
+                              var amount =  this.responseText;
+                              console.log("ПРИШЕДШИЙ ОТВЕТ - " + this.responseText);
+                              updateAmount(client_id, amount);
+                              
+             
+                              //----- core part - разбор РЕЗУЛЬТАТА---------- 
+                          } else {
+                              //alert("Error with AJAX: No data recieved")
+                          }
+                      } else {
+                           //alert("Error with AJAX: " + this.statusText)
+                      }
+                  }
+              }
+              request.send(params);
+    }
+    //=============AJAX request for JSON function ==============================
+
+    function updateAmount(client_id, amount) {
+      switch(client_id) {
+        case 1:
+          $("#client1").text(amount);
+          formatAmountClient1();
+        break;
+
+        case 2:
+          $("#client2").text(amount);
+          formatAmountClient2();
+        break;
+          
+        default:
+        break;
+      }
+    }
+
+	
+
+
+</script>
+	
+</body>
+</html>
