@@ -83,7 +83,8 @@
 
    //======  функция обновления информации ======================================
    	function updateInfo() {
-   		getInfoAbountClientsAccounts(1);   // по первому клиенту
+   		//у клиента 1 паароль = 111 
+      getInfoAbountClientsAccounts(1, '111');   
    	}
    //============================================================================
 
@@ -118,10 +119,12 @@
 
 
     //=============AJAX request for JSON function ==============================
-    function getInfoAbountClientsAccounts(client_id) {
-              params = "client_id="+client_id;
-              request = new ajaxRequest()
-              request.open("POST", "http://raul.ru/project_1/server/bank.php", true)
+    function getInfoAbountClientsAccounts(client_id, password) {
+              var params  = "client_id="+client_id;
+                  params += "&password="+password;
+             
+              var request = new ajaxRequest()
+              request.open("POST", "http://raul.ru/project_1/server/client.php", true)
               request.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
               request.setRequestHeader("Content-length", params.length)
               request.setRequestHeader("Connection", "close")
